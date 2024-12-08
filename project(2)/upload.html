@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>File Upload</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+
+    <style>
+        body {
+            background-color: #f3f4f6;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        h2 {
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+        .btn {
+            background-color: #4f46e5;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            width: 100%;
+            text-align: center;
+            border-radius: 0.375rem;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        .btn:hover {
+            background-color: #4338ca;
+        }
+        .hidden {
+            display: none;
+        }
+        .success-message {
+            background-color: #d1fae5;
+            padding: 1rem;
+            color: #065f46;
+            border-radius: 0.375rem;
+        }
+        .uploaded-file {
+            background-color: #f3f4f6;
+            padding: 1rem;
+            color: #4b5563;
+            border-radius: 0.375rem;
+        }
+
+        /* Modal Styles */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-content {
+            background-color: white;
+            padding: 1rem;
+            border-radius: 8px;
+            width: 400px;
+            text-align: center;
+        }
+
+        .modal-header {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .modal-body {
+            margin-bottom: 1rem;
+        }
+
+        .close-btn {
+            background-color: #4f46e5;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .close-btn:hover {
+            background-color: #4338ca;
+        }
+    </style>
+</head>
+<body class="flex justify-center items-center min-h-screen">
+
+    <div class="container">
+        <h2 class="text-2xl font-bold mb-6">Upload a PDF File</h2>
+        <form id="uploadForm" action="/upload" method="POST" enctype="multipart/form-data">
+            <div>
+                <label class="block text-sm font-medium text-gray-700">Choose file</label>
+                <input type="file" name="file" id="fileInput" accept="application/pdf" class="mt-1 block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+            </div>
+            <button type="submit" class="btn">Upload</button>
+        </form>
+
+        <div id="successMessage" class="hidden mt-4 p-4 success-message">
+            <i class="fas fa-check-circle"></i> File uploaded successfully!
+        </div>
+
+        <div id="uploadedFile" class="hidden mt-4 p-4 uploaded-file">
+            <h3 class="text-lg font-semibold">Uploaded File:</h3>
+            <p id="fileName"></p>
+        </div>
+    </div>
+
+    <!-- Modal for confirmation -->
+    <div id="confirmModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">Success!</div>
+            <div class="modal-body">Your file has been uploaded successfully.</div>
+            <button class="close-btn" id="closeModalBtn">Close</button>
+        </div>
+    </div>
+
+    <script>
+        // Event listener for form submission
+        document.getElementById('uploadForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const formData = new FormData(this);
+            fetch('/upload', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Show success message and modal
+                    document.getElementById('successMessage').classList.remove('hidden');
+                    document.getElementById('uploadedFile').classList.remove('hidden');
+                    document.getElementById('fileName').textContent = data.filename;
+
+                    // Show the modal
+                    document.getElementById('confirmModal').style.display = 'flex';
+                } else {
+                    alert('Failed to upload the file');
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        });
+
+        // Close the modal when the close button is clicked
+        document.getElementById('closeModalBtn').addEventListener('click', function() {
+            document.getElementById('confirmModal').style.display = 'none';
+        });
+    </script>
+
+</body>
+</html>
